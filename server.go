@@ -193,7 +193,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet, http.MethodHead:
 		s.handleGet(w, r)
 	case http.MethodPost:
-		s.handlePost(w, r)
+		s.handlePut(w, r)
 	case http.MethodPut:
 		s.handlePut(w, r)
 	default:
