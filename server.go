@@ -1,16 +1,12 @@
 package main
 
 import (
-	"crypto/sha1"
-	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
 	"regexp"
-	"strings"
 
 	"github.com/Sirupsen/logrus"
 )
