@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"crypto/rand"
-
 	"github.com/Sirupsen/logrus"
 )
 
