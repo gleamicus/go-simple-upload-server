@@ -14,32 +14,27 @@ import (
 // Server represents a simple-upload server.
 type Server struct {
 	DocumentRoot string
-	// MaxUploadSize limits the size of the uploaded content, specified with "byte".
-	MaxUploadSize int64
-	SecureToken   string
 }
 
 // NewServer creates a new simple-upload server.
-func NewServer(documentRoot string, maxUploadSize int64, token string) Server {
+func NewServer(documentRoot string) Server {
 	return Server{
-		DocumentRoot:  documentRoot,
-		MaxUploadSize: maxUploadSize,
-		SecureToken:   token,
+		DocumentRoot:  documentRoot
 	}
 }
 
 func (s Server) handleGet(w http.ResponseWriter, r *http.Request) {
-	re := regexp.MustCompile(`^/files/([^/]+)$`)
+	re := regexp.MustCompile(`^/snaps/([^/]+)$`)
 	if !re.MatchString(r.URL.Path) {
 		w.WriteHeader(http.StatusNotFound)
 		writeError(w, fmt.Errorf("\"%s\" is not found", r.URL.Path))
 		return
 	}
-	http.StripPrefix("/files/", http.FileServer(http.Dir(s.DocumentRoot))).ServeHTTP(w, r)
+	http.StripPrefix("/snaps/", http.FileServer(http.Dir(s.DocumentRoot))).ServeHTTP(w, r)
 }
 
-func (s Server) handlePut(w http.ResponseWriter, r *http.Request) {
-	re := regexp.MustCompile(`^/files/([^/]+)$`)
+func (s Server) handlePost(w http.ResponseWriter, r *http.Request) {
+	re := regexp.MustCompile(`^/snaps/([^/]+)$`)
 	matches := re.FindStringSubmatch(r.URL.Path)
 	if matches == nil {
 		logger.WithField("path", r.URL.Path).Info("invalid path")
@@ -68,29 +63,17 @@ func (s Server) handlePut(w http.ResponseWriter, r *http.Request) {
 	logger.WithFields(logrus.Fields{
 		"path": r.URL.Path,
 		"size": n,
-	}).Info("file uploaded by PUT")
+	}).Info("file uploaded")
 	w.WriteHeader(http.StatusOK)
 	writeSuccess(w, r.URL.Path)
 }
 
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// first, try to get the token from the query strings
-	token := r.URL.Query().Get("token")
-	// if token is not found, check the form parameter.
-	if token == "" {
-		token = r.Form.Get("token")
-	}
-	if token != s.SecureToken {
-		w.WriteHeader(http.StatusUnauthorized)
-		writeError(w, fmt.Errorf("authentication required"))
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet, http.MethodHead:
 		s.handleGet(w, r)
 	case http.MethodPost, http.MethodPut:
-		s.handlePut(w, r)
+		s.handlePost(w, r)
 	default:
 		w.Header().Add("Allow", "GET,HEAD,POST,PUT")
 		w.WriteHeader(http.StatusMethodNotAllowed)
