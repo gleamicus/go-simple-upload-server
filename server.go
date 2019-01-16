@@ -19,7 +19,7 @@ type Server struct {
 // NewServer creates a new simple-upload server.
 func NewServer(documentRoot string) Server {
 	return Server{
-		DocumentRoot:  documentRoot
+		DocumentRoot:  documentRoot,
 	}
 }
 
