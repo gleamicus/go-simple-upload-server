@@ -28,17 +28,6 @@ func run(args []string) int {
 	} else {
 		logger.Level = logLevel
 	}
-	token := *tokenFlag
-	if token == "" {
-		count := 10
-		b := make([]byte, count)
-		if _, err := rand.Read(b); err != nil {
-			logger.WithError(err).Fatal("could not generate token")
-			return 1
-		}
-		token = fmt.Sprintf("%x", b)
-		logger.WithField("token", token).Warn("token generated")
-	}
 	logger.WithFields(logrus.Fields{
 		"ip":           *bindAddress,
 		"port":         *listenPort,
